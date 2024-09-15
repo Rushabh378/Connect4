@@ -1,23 +1,38 @@
+using Unity.Netcode;
 using UnityEngine;
 
 namespace Connect4
 {
-    public class InputManager : GenericSingleton<InputManager>
+    public class PlayerInput : NetworkBehaviour
     {
-        [SerializeField] private BlockGrid blockGrid;
+        private BlockGrid blockGrid;
         private byte player1 = 1;
         private byte player2 = 2;
         private bool firstTurn = true;
+
+        public override void OnNetworkSpawn()
+        {
+            base.OnNetworkSpawn();
+            
+            blockGrid = FindFirstObjectByType<BlockGrid>();
+            if(blockGrid != null)
+            {
+                Debug.Log("Block grid found");
+            }
+        }
         private void Update()
         {
-            if (firstTurn)
+            if (!IsOwner) return;
+
+            MakeMove(player1);
+            /*if (firstTurn)
             {
                 MakeMove(player1);
             }
             else
             {
                 MakeMove(player2);
-            }
+            }*/
         }
         private void MakeMove(byte player)
         {

@@ -20,7 +20,7 @@ namespace Connect4
                 {
                     Debug.Log("Player " + player + " wins!");
                 }
-                firstTurn = !firstTurn;
+                //firstTurn = !firstTurn;
             }
             else
             {
