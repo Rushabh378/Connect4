@@ -24,57 +24,34 @@ namespace Connect4
                 }
             }
         }
-        public bool CheckWin(byte player)
+        public bool CheckWin(byte player, int lastRow, int lastCol)
         {
-            // Check horizontal
-            for (byte row = 0; row < MaxRows; row++)
+            return CheckDirection(player, lastRow, lastCol, 1, 0) ||  // Horizontal
+              CheckDirection(player, lastRow, lastCol, 0, 1) ||  // Vertical
+              CheckDirection(player, lastRow, lastCol, 1, 1) ||  // Diagonal bottom-left to top-right
+              CheckDirection(player, lastRow, lastCol, 1, -1);   // Diagonal top-left to bottom-right
+        }
+        private bool CheckDirection(int player, int startRow, int startCol, int deltaRow, int deltaCol)
+        {
+            int count = 0;
+
+            // Check in the negative direction
+            for (int i = -3; i <= 3; i++)
             {
-                for (byte col = 0; col <= MaxColumns - 4; col++)
+                int newRow = startRow + i * deltaRow;
+                int newCol = startCol + i * deltaCol;
+
+                if (newRow >= 0 && newRow < MaxRows && newCol >= 0 && newCol < MaxColumns && grid[newRow, newCol] == player)
                 {
-                    if (grid[row, col] == player && grid[row, col + 1] == player &&
-                        grid[row, col + 2] == player && grid[row, col + 3] == player)
+                    count++;
+                    if (count == 4)
                     {
                         return true;
                     }
                 }
-            }
-
-            // Check vertical
-            for (byte col = 0; col < MaxColumns; col++)
-            {
-                for (byte row = 0; row <= MaxRows - 4; row++)
+                else
                 {
-                    if (grid[row, col] == player && grid[row + 1, col] == player &&
-                        grid[row + 2, col] == player && grid[row + 3, col] == player)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            // Check diagonal (bottom left to top right)
-            for (byte row = 0; row <= MaxRows - 4; row++)
-            {
-                for (int col = 0; col <= MaxColumns - 4; col++)
-                {
-                    if (grid[row, col] == player && grid[row + 1, col + 1] == player &&
-                        grid[row + 2, col + 2] == player && grid[row + 3, col + 3] == player)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            // Check diagonal (top left to bottom right)
-            for (byte row = 3; row < MaxRows; row++)
-            {
-                for (byte col = 0; col <= MaxColumns - 4; col++)
-                {
-                    if (grid[row, col] == player && grid[row - 1, col + 1] == player &&
-                        grid[row - 2, col + 2] == player && grid[row - 3, col + 3] == player)
-                    {
-                        return true;
-                    }
+                    count = 0; // Reset count if a sequence is broken
                 }
             }
 

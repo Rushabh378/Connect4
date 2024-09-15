@@ -6,6 +6,7 @@ namespace Connect4
         [SerializeField] private GameObject blockPrefab;
         [SerializeField] private float discOffset = 1.1f;
         private Connect4 connect4;
+        private int lastRow, lastCol;
         private void Start()
         {
             connect4 = GetComponent<Connect4>();
@@ -15,7 +16,7 @@ namespace Connect4
         {
             if (DropDisc(column, player))
             {
-                if (connect4.CheckWin(player))
+                if (connect4.CheckWin(player, lastRow, lastCol))
                 {
                     Debug.Log("Player " + player + " wins!");
                 }
@@ -36,6 +37,8 @@ namespace Connect4
                 if (connect4.grid[row, column] == 0)
                 {
                     connect4.grid[row, column] = player;
+                    lastCol = column;
+                    lastRow = row;
                     UpdateBlockVisual(row, column, player);
                     return true;
                 }
