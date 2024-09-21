@@ -13,16 +13,12 @@ namespace Connect4
             connect4 = GetComponent<Connect4>();
             CreateGrid();
         }
-        public bool MakeMove(byte column, byte player, bool firstTurn)
+        public void MakeMove(byte column, byte player)
         {
-            if (!IsOwner) return false;
-
-            DropDiscServerRpc(column, player);
-
-            return firstTurn;
+            Debug.Log("Make move called by " + OwnerClientId);
+            DropDisc(column, player);
         }
-        [Rpc(SendTo.Server, RequireOwnership = false)]
-        public void DropDiscServerRpc(byte column, byte player)
+        public void DropDisc(byte column, byte player)
         {
             if (column < 0 || column >= connect4.MaxColumns) return;
 
@@ -34,7 +30,6 @@ namespace Connect4
                     lastCol = column;
                     lastRow = row;
                     UpdateBlockVisual(row, column, player);
-                    Debug.Log("Droped disc by " + OwnerClientId);
 
                     if (connect4.CheckWin(player, lastRow, lastCol))
                     {

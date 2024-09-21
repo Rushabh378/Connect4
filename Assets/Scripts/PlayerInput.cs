@@ -6,8 +6,7 @@ namespace Connect4
     public class PlayerInput : NetworkBehaviour
     {
         private BlockGrid blockGrid;
-        private byte player1 = 1;
-        private byte player2 = 2;
+        private byte player;
         private bool firstTurn = true;
 
         public override void OnNetworkSpawn()
@@ -16,21 +15,22 @@ namespace Connect4
             
             blockGrid = FindFirstObjectByType<BlockGrid>();
             
-            player1 = (byte)(OwnerClientId + 1);
+            player = (byte)(OwnerClientId + 1);
         }
         private void Update()
         {
             if (!IsOwner) return;
 
-            MakeMove(player1);
-            /*if (firstTurn)
-            {
-                MakeMove(player1);
-            }
-            else
-            {
-                MakeMove(player2);
-            }*/
+            if (Input.GetKeyDown(KeyCode.Alpha1)) MakeMoveServerRpc(0, player);
+            if (Input.GetKeyDown(KeyCode.Alpha2)) MakeMoveServerRpc(1, player);
+            if (Input.GetKeyDown(KeyCode.Alpha3)) MakeMoveServerRpc(2, player);
+            if (Input.GetKeyDown(KeyCode.Alpha4)) MakeMoveServerRpc(3, player);
+            if (Input.GetKeyDown(KeyCode.Alpha5)) MakeMoveServerRpc(4, player);
+            if (Input.GetKeyDown(KeyCode.Alpha6)) MakeMoveServerRpc(5, player);
+            if (Input.GetKeyDown(KeyCode.Alpha7)) MakeMoveServerRpc(6, player);
+
+            //MakeMoveServerRpc(player);
+            
             if (Input.GetKeyDown(KeyCode.T))
             {
                 TestClientRpc();
@@ -39,17 +39,12 @@ namespace Connect4
         [Rpc(SendTo.ClientsAndHost)]
         private void TestClientRpc()
         {
-            Debug.Log("sending data from " + OwnerClientId)
+            Debug.Log("sending data from " + OwnerClientId);
         }
-        private void MakeMove(byte player)
+        [Rpc(SendTo.Server, RequireOwnership = false)]
+        private void MakeMoveServerRpc(byte column, byte player)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1)) firstTurn = blockGrid.MakeMove(0, player, firstTurn);
-            if (Input.GetKeyDown(KeyCode.Alpha2)) firstTurn = blockGrid.MakeMove(1, player, firstTurn);
-            if (Input.GetKeyDown(KeyCode.Alpha3)) firstTurn = blockGrid.MakeMove(2, player, firstTurn);
-            if (Input.GetKeyDown(KeyCode.Alpha4)) firstTurn = blockGrid.MakeMove(3, player, firstTurn);
-            if (Input.GetKeyDown(KeyCode.Alpha5)) firstTurn = blockGrid.MakeMove(4, player, firstTurn);
-            if (Input.GetKeyDown(KeyCode.Alpha6)) firstTurn = blockGrid.MakeMove(5, player, firstTurn);
-            if (Input.GetKeyDown(KeyCode.Alpha7)) firstTurn = blockGrid.MakeMove(6, player, firstTurn);
+            blockGrid.MakeMove(column, player);
         }
     }
 }
