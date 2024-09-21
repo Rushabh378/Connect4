@@ -1,7 +1,8 @@
+using Unity.Netcode;
 using UnityEngine;
 namespace Connect4
 {
-    public class BlockGrid : MonoBehaviour
+    public class BlockGrid : NetworkBehaviour
     {
         [SerializeField] private GameObject blockPrefab;
         [SerializeField] private float discOffset = 1.1f;
@@ -14,23 +15,16 @@ namespace Connect4
         }
         public bool MakeMove(byte column, byte player, bool firstTurn)
         {
-            if (DropDisc(column, player))
-            {
-                if (connect4.CheckWin(player, lastRow, lastCol))
-                {
-                    Debug.Log("Player " + player + " wins!");
-                }
-                //firstTurn = !firstTurn;
-            }
-            else
-            {
-                Debug.Log("Column is full!");
-            }
+            if (!IsOwner) return false;
+
+            DropDiscServerRpc(column, player);
+
             return firstTurn;
         }
-        public bool DropDisc(byte column, byte player)
+        [Rpc(SendTo.Server, RequireOwnership = false)]
+        public void DropDiscServerRpc(byte column, byte player)
         {
-            if (column < 0 || column >= connect4.MaxColumns) return false;
+            if (column < 0 || column >= connect4.MaxColumns) return;
 
             for (byte row = 0; row < connect4.MaxRows; row++)
             {
@@ -40,10 +34,16 @@ namespace Connect4
                     lastCol = column;
                     lastRow = row;
                     UpdateBlockVisual(row, column, player);
-                    return true;
+                    Debug.Log("Droped disc by " + OwnerClientId);
+
+                    if (connect4.CheckWin(player, lastRow, lastCol))
+                    {
+                        Debug.Log("player " + player + " win");
+                    }
+                    return;
                 }
             }
-            return false; // Column is full
+            Debug.Log("Column is full");
         }
         void UpdateBlockVisual(byte row, byte column, byte player)
         {

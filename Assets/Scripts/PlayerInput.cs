@@ -15,10 +15,8 @@ namespace Connect4
             base.OnNetworkSpawn();
             
             blockGrid = FindFirstObjectByType<BlockGrid>();
-            if(blockGrid != null)
-            {
-                Debug.Log("Block grid found");
-            }
+            
+            player1 = (byte)(OwnerClientId + 1);
         }
         private void Update()
         {
@@ -33,6 +31,15 @@ namespace Connect4
             {
                 MakeMove(player2);
             }*/
+            if (Input.GetKeyDown(KeyCode.T))
+            {
+                TestClientRpc();
+            }
+        }
+        [Rpc(SendTo.ClientsAndHost)]
+        private void TestClientRpc()
+        {
+            Debug.Log("sending data from " + OwnerClientId)
         }
         private void MakeMove(byte player)
         {
