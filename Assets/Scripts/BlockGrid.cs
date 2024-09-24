@@ -15,7 +15,6 @@ namespace Connect4
         }
         public void MakeMove(byte column, byte player)
         {
-            Debug.Log("Make move called by " + OwnerClientId);
             DropDisc(column, player);
         }
         public void DropDisc(byte column, byte player)
@@ -29,7 +28,7 @@ namespace Connect4
                     connect4.grid[row, column] = player;
                     lastCol = column;
                     lastRow = row;
-                    UpdateBlockVisual(row, column, player);
+                    UpdateBlockVisualClientRpc(row, column, player);
 
                     if (connect4.CheckWin(player, lastRow, lastCol))
                     {
@@ -40,7 +39,8 @@ namespace Connect4
             }
             Debug.Log("Column is full");
         }
-        void UpdateBlockVisual(byte row, byte column, byte player)
+        [Rpc(SendTo.ClientsAndHost)]
+        void UpdateBlockVisualClientRpc(byte row, byte column, byte player)
         {
             Transform block = transform.GetChild(row * connect4.MaxColumns + column);
             block.GetComponent<SpriteRenderer>().color = (player == 1) ? Color.red : Color.yellow;
