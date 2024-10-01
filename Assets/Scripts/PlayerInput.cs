@@ -7,7 +7,6 @@ namespace Connect4
     {
         private BlockGrid blockGrid;
         private byte player;
-        private NetworkVariable<bool> firstTurn = new NetworkVariable<bool>(true);
 
         public override void OnNetworkSpawn()
         {
@@ -16,19 +15,6 @@ namespace Connect4
             if (!IsOwner) return;
 
             player = (byte)(OwnerClientId + 1);
-
-            firstTurn.OnValueChanged += (bool previousValue, bool newValue) =>
-            {
-                if ((newValue && player == 1) || (!newValue && player == 2))
-                {
-                    Debug.Log("It's your turn");
-                }
-                else
-                {
-                    Debug.Log("Waiting for the other player...");
-                }
-            };
-            
             blockGrid = FindFirstObjectByType<BlockGrid>();
 
             Debug.Log("Your Client id is " + OwnerClientId.ToString());
@@ -37,36 +23,13 @@ namespace Connect4
         {
             if (!IsOwner) return;
 
-            if(firstTurn.Value == true && player == 1)
-            {
-                if (Input.GetKeyDown(KeyCode.Alpha1)) MakeMoveServerRpc(0, player);
-                if (Input.GetKeyDown(KeyCode.Alpha2)) MakeMoveServerRpc(1, player);
-                if (Input.GetKeyDown(KeyCode.Alpha3)) MakeMoveServerRpc(2, player);
-                if (Input.GetKeyDown(KeyCode.Alpha4)) MakeMoveServerRpc(3, player);
-                if (Input.GetKeyDown(KeyCode.Alpha5)) MakeMoveServerRpc(4, player);
-                if (Input.GetKeyDown(KeyCode.Alpha6)) MakeMoveServerRpc(5, player);
-                if (Input.GetKeyDown(KeyCode.Alpha7)) MakeMoveServerRpc(6, player);
-            }
-            if(firstTurn.Value == false && player == 2)
-            {
-                if (Input.GetKeyDown(KeyCode.Alpha1)) MakeMoveServerRpc(0, player);
-                if (Input.GetKeyDown(KeyCode.Alpha2)) MakeMoveServerRpc(1, player);
-                if (Input.GetKeyDown(KeyCode.Alpha3)) MakeMoveServerRpc(2, player);
-                if (Input.GetKeyDown(KeyCode.Alpha4)) MakeMoveServerRpc(3, player);
-                if (Input.GetKeyDown(KeyCode.Alpha5)) MakeMoveServerRpc(4, player);
-                if (Input.GetKeyDown(KeyCode.Alpha6)) MakeMoveServerRpc(5, player);
-                if (Input.GetKeyDown(KeyCode.Alpha7)) MakeMoveServerRpc(6, player);
-            }
-            if (Input.GetKeyDown(KeyCode.T))
-            {
-                Debug.Log("firsturn is " + firstTurn.Value.ToString());
-            }
-        }
-        [Rpc(SendTo.Server, RequireOwnership = false)]
-        private void MakeMoveServerRpc(byte column, byte player)
-        {
-            firstTurn.Value = !firstTurn.Value;
-            blockGrid.MakeMove(column, player);
+            if (Input.GetKeyDown(KeyCode.Alpha1)) blockGrid.MakeMoveSeverRpc(0, player);
+            if (Input.GetKeyDown(KeyCode.Alpha2)) blockGrid.MakeMoveSeverRpc(1, player);
+            if (Input.GetKeyDown(KeyCode.Alpha3)) blockGrid.MakeMoveSeverRpc(2, player);
+            if (Input.GetKeyDown(KeyCode.Alpha4)) blockGrid.MakeMoveSeverRpc(3, player);
+            if (Input.GetKeyDown(KeyCode.Alpha5)) blockGrid.MakeMoveSeverRpc(4, player);
+            if (Input.GetKeyDown(KeyCode.Alpha6)) blockGrid.MakeMoveSeverRpc(5, player);
+            if (Input.GetKeyDown(KeyCode.Alpha7)) blockGrid.MakeMoveSeverRpc(6, player);
         }
     }
 }

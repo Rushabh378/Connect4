@@ -14,7 +14,6 @@ namespace Connect4
             grid = new byte[MaxRows, MaxColumns];
             InitializeGrid();
         }
-
         void InitializeGrid()
         {
             for (byte row = 0; row < MaxRows; row++)
@@ -36,7 +35,6 @@ namespace Connect4
         {
             int count = 0;
 
-            // Check in the negative direction
             for (int i = -3; i <= 3; i++)
             {
                 int newRow = startRow + i * deltaRow;

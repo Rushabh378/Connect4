@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 namespace Connect4
@@ -6,16 +7,41 @@ namespace Connect4
     {
         [SerializeField] private GameObject blockPrefab;
         [SerializeField] private float discOffset = 1.1f;
+
         private Connect4 connect4;
         private int lastRow, lastCol;
+
+        private NetworkVariable<bool> firstTurn = new NetworkVariable<bool>(true);
         private void Start()
         {
             connect4 = GetComponent<Connect4>();
             CreateGrid();
         }
-        public void MakeMove(byte column, byte player)
+        [Rpc(SendTo.Server)]
+        public void MakeMoveSeverRpc(byte column, byte player)
         {
-            DropDisc(column, player);
+            if(firstTurn.Value && player == 1 || !firstTurn.Value && player == 2)
+            {
+                DropDisc(column, player);
+                firstTurn.Value = !firstTurn.Value;
+            }
+            else
+            {
+                ulong value =(ulong) player - 1;
+                LogMassageClientRpc("wait for your turn", new ClientRpcParams 
+                {
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds = new List<ulong> { value }
+                    }
+                });
+            }
+            
+        }
+        [ClientRpc]
+        private void LogMassageClientRpc(string message, ClientRpcParams clientRpc)
+        {
+            Debug.Log(message);
         }
         public void DropDisc(byte column, byte player)
         {
