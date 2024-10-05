@@ -7,7 +7,6 @@ namespace Connect4
     {
         [SerializeField] private UnityEngine.UI.Button host;
         [SerializeField] private UnityEngine.UI.Button client;
-        private NetworkManager networkManager;
         private void Awake()
         {
             host.onClick.AddListener(() => 

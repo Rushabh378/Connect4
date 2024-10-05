@@ -17,8 +17,8 @@ namespace Connect4
             connect4 = GetComponent<Connect4>();
             CreateGrid();
         }
-        [Rpc(SendTo.Server)]
-        public void MakeMoveSeverRpc(byte column, byte player)
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeMoveServerRpc(byte column, byte player)
         {
             if(firstTurn.Value && player == 1 || !firstTurn.Value && player == 2)
             {
@@ -28,7 +28,7 @@ namespace Connect4
             else
             {
                 ulong value =(ulong) player - 1;
-                LogMassageClientRpc("wait for your turn", new ClientRpcParams 
+                LogMassageClientRpc("title", "wait for your turn", new ClientRpcParams 
                 {
                     Send = new ClientRpcSendParams
                     {
@@ -39,8 +39,9 @@ namespace Connect4
             
         }
         [ClientRpc]
-        private void LogMassageClientRpc(string message, ClientRpcParams clientRpc)
+        private void LogMassageClientRpc(string title, string message, ClientRpcParams clientRpc)
         {
+            UIManager.Instance.window.PopUp(title, message);
             Debug.Log(message);
         }
         public void DropDisc(byte column, byte player)
@@ -58,7 +59,33 @@ namespace Connect4
 
                     if (connect4.CheckWin(player, lastRow, lastCol))
                     {
-                        Debug.Log("player " + player + " win");
+                        ulong winner;
+                        ulong looser;
+                        if(player == 1)
+                        {
+                            winner = 0;
+                            looser = 1;
+                        }
+                        else
+                        {
+                            winner = 1;
+                            looser = 0;
+                        }
+                        LogMassageClientRpc("title", "you won", new ClientRpcParams
+                        {
+                            Send = new ClientRpcSendParams
+                            {
+                                TargetClientIds = new List<ulong> { winner }
+                            }
+                        });
+                        
+                        LogMassageClientRpc("title", "you lose", new ClientRpcParams
+                        {
+                            Send = new ClientRpcSendParams
+                            {
+                                TargetClientIds = new List<ulong> { looser }
+                            }
+                        });
                     }
                     return;
                 }
